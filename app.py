@@ -9,50 +9,34 @@ st.set_page_config(page_title="Sonsuz Aşkım ❤️", page_icon="🌹", layout=
 # --- TASARIM (CSS) ---
 st.markdown("""
 <style>
-    /* Arka plan rengi */
     .stApp {
         background: linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%);
     }
-    h1 { color: #880E4F; font-family: 'Georgia', serif; text-align: center; margin-bottom: 20px;}
+    h1 { color: #880E4F; font-family: 'Georgia', serif; text-align: center; }
     h2, h3 { color: #AD1457; font-family: 'Helvetica', sans-serif; text-align: center; }
     
-    /* Mektup Kartı Tasarımı */
     .ask-karti {
         background-color: rgba(255, 255, 255, 0.7);
         padding: 30px; border-radius: 20px;
         border: 2px solid #F8BBD0;
         box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         font-size: 19px; color: #4A148C; font-family: 'Verdana', sans-serif;
-        line-height: 1.6;
     }
-    
-    /* Buton Tasarımı */
-    .stButton>button {
-        background-color: #EC407A; color: white; border-radius: 15px; 
-        font-size: 18px; width: 100%; border: none; padding: 12px;
-        transition: 0.3s;
-    }
-    .stButton>button:hover { background-color: #D81B60; transform: scale(1.05); }
-    
-    /* Fotoğraflar için */
     img { border-radius: 15px; margin-bottom: 10px; }
 </style>
 """, unsafe_allow_html=True)
 
 # --- FOTOĞRAF KONTROL FONKSİYONU ---
 def foto_goster(isim):
-    """Jpg veya Png fark etmeksizin fotoyu bulur"""
     uzantilar = [".jpg", ".png", ".jpeg"]
     for uzanti in uzantilar:
         yol = f"fotolar/{isim}{uzanti}"
         if os.path.exists(yol):
             st.image(yol, use_container_width=True)
             return True
-    # Foto yoksa boş geçmesin diye gri alan
-    st.info(f"Resim bekleniyor: {isim}")
     return False
 
-# --- GİRİŞ EKRANI ---
+# --- GİRİŞ EKRANI (DÜZELTİLDİ: FORM KULLANILDI) ---
 SIFRE = "7 Aralık"
 
 if 'giris' not in st.session_state:
@@ -65,57 +49,46 @@ if not st.session_state['giris']:
     
     c1, c2, c3 = st.columns([1,2,1])
     with c2:
-        sifre_giris = st.text_input("Şifre:", placeholder="Tarihimiz...", type="password")
-        if st.button("Giriş Yap ❤️"):
-            if sifre_giris.strip() == SIFRE:
-                st.session_state['giris'] = True
-                st.balloons()
-                st.rerun()
-            else:
-                st.error("Sadece ikimizin bildiği o tarih...")
+        # BURASI DEĞİŞTİ: Artık form içindeyiz, yazı yazarken donmaz.
+        with st.form("giris_formu"):
+            sifre_giris = st.text_input("Şifre:", placeholder="Tarihimiz...", type="password")
+            giris_butonu = st.form_submit_button("Giriş Yap ❤️")
+            
+            if giris_butonu:
+                if sifre_giris.strip() == SIFRE:
+                    st.session_state['giris'] = True
+                    st.rerun()
+                else:
+                    st.error("Sadece ikimizin bildiği o tarih...")
     st.stop()
 
 # --- ANA SAYFA ---
 
-# Müzik Player (Görünmez yapılabilir ama şık duruyor)
 st.markdown('<iframe style="border-radius:12px" src="http://googleusercontent.com/spotify.com/2" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>', unsafe_allow_html=True)
+
+if st.session_state['giris']: # Balonlar sadece giriş başarılı olunca ilk açılışta patlasın
+    st.balloons()
 
 st.title("❤️ İyi ki Varsın Sevgilim ❤️")
 st.markdown("**Senin için hazırladığım bu küçük dünyaya hoş geldin...**")
 st.divider()
 
-# Sekmeler
 tab1, tab2, tab3 = st.tabs(["📸 Bizim Hikayemiz", "💌 Sana Mektubum", "🎁 Aşk Çekleri"])
 
-# --- 1. SEKME: 5 FOTOĞRAF GALERİSİ ---
 with tab1:
     st.header("Seninle Her Anım Mucize")
-    
-    # Üstte 2 Büyük Fotoğraf
     col1, col2 = st.columns(2)
-    with col1:
-        foto_goster("biz1")
-    with col2:
-        foto_goster("biz2")
-        
+    with col1: foto_goster("biz1")
+    with col2: foto_goster("biz2")
     st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Altta 3 Yan Yana Fotoğraf
     col3, col4, col5 = st.columns(3)
-    with col3:
-        foto_goster("biz3")
-    with col4:
-        foto_goster("biz4")
-    with col5:
-        foto_goster("biz5")
-        
+    with col3: foto_goster("biz3")
+    with col4: foto_goster("biz4")
+    with col5: foto_goster("biz5")
     st.success("Birlikte daha nicelerine... 📸")
 
-# --- 2. SEKME: DUYGUSAL MEKTUP ---
 with tab2:
     st.header("💌 Kalbimden Gelenler...")
-    
-    # Burası tam istediğin gibi: AŞK Odaklı, Naif bir özür
     mektup = """
     Canım Sevgilim, Hayatımın Anlamı...
     
@@ -131,34 +104,25 @@ with tab2:
     İyi ki hayatımdasın, iyi ki benimsin.
     
     Sonsuza kadar, sadece senin...
-    
     - Berat
     """
-    
     st.markdown(f'<div class="ask-karti">{mektup}</div>', unsafe_allow_html=True)
-    
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("Seni Seviyorum ❤️"):
-        st.snow() # Kalp yağmuru yerine kar efekti (daha romantik duruyor)
+        st.snow()
         time.sleep(1)
-        st.balloons()
         st.success("Ben de seni her şeyden çok seviyorum! ❤️")
 
-# --- 3. SEKME: HEDİYE KUPONLARI ---
 with tab3:
     st.header("🎁 Aşk Çekleri")
     st.write("Bu çeklerin son kullanma tarihi yok, istediğin zaman kullanabilirsin!")
-    
     c1, c2, c3 = st.columns(3)
-    
     with c1:
         if st.button("🎬 Film Gecesi (Seçim Senin)"):
             st.info("Kupon Onaylandı! Mısırları patlatıyorum, kumanda sende.")
-            
     with c2:
         if st.button("💆‍♀️ Özel Masaj Hakkı"):
             st.success("Kupon Onaylandı! Günün tüm yorgunluğunu alacağım.")
-            
     with c3:
         if st.button("🍔 Yemek Ismarlama"):
             st.warning("Kupon Onaylandı! Nereye dersen oraya gidiyoruz.")
